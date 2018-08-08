@@ -24,9 +24,6 @@ public class CamelRouteTest extends CamelTestSupport {
     @Rule
     public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
-    @Rule
-    public EmbeddedSshdRule sshdRule = new EmbeddedSshdRule();
-
     File inputDirectory;
     File outputDirectory;
 
@@ -34,7 +31,6 @@ public class CamelRouteTest extends CamelTestSupport {
     protected void doPreSetup() throws Exception {
         inputDirectory = temporaryFolder.newFolder();
         outputDirectory = temporaryFolder.newFolder();
-        sshdRule.setupSSHServer(outputDirectory);
     }
 
     @Test
@@ -59,11 +55,11 @@ public class CamelRouteTest extends CamelTestSupport {
     @Override
     protected RoutesBuilder createRouteBuilder() {
 
-        final String route = "scp://localhost:18001?username=username&password=password&strictHostKeyChecking=false";
-
         return new RouteBuilder() {
             public void configure() {
-                from("file:" + inputDirectory.getAbsolutePath() + "?readLock=none").log(LoggingLevel.INFO, "moving file").to(route);
+                from("file:" + inputDirectory.getAbsolutePath() + "?readLock=none")
+                        .log(LoggingLevel.INFO, "moving file")
+                        .to("file:" + outputDirectory.getAbsolutePath());
             }
         };
     }
